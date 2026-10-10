@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="ms" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pentaksiran Bilik Darjah (PBD) Sekolah Rendah</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        tp1: '#ef4444', // Red
+                        tp2: '#f97316', // Orange
+                        tp3: '#eab308', // Amber/Yellow
+                        tp4: '#84cc16', // Lime Green
+                        tp5: '#10b981', // Emerald
+                        tp6: '#0d9488', // Teal
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Print Specific Styling for Formal KPM PBD Report Slip */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .print-card {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                page-break-after: always;
+            }
+        }
+
+        .tp-badge-btn {
+            transition: all 0.15s ease-in-out;
+        }
+        .tp-badge-btn:hover {
+            transform: translateY(-1px);
+        }
+        .tp-badge-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col bg-slate-50">
+
+    <!-- Top Header & Navigation Bar -->
+    <header class="bg-indigo-950 text-white shadow-lg sticky top-0 z-30 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- App Title & Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-tr from-amber-500 to-amber-300 p-2.5 rounded-xl text-indigo-950 font-black text-xl flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+                            e-PBD Tracker 
+                            <span class="text-[10px] bg-amber-400 text-indigo-950 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">KPM</span>
+                        </h1>
+                        <p class="text-xs text-indigo-200 hidden sm:block">Sistem Pengurusan & Pentaksiran Bilik Darjah Murid</p>
+                    </div>
+                </div>
+
+                <!-- Subject & Class Selection Bar -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <!-- Subject Selector -->
+                    <select id="subjectSelect" onchange="changeSubject(this.value)" class="bg-indigo-900 border border-indigo-700 text-white text-xs sm:text-sm rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-400 font-medium">
+                        <option value="BM">BAHASA MELAYU</option>
+                        <option value="BI">BAHASA INGGERIS</option>
+                        <option value="MT">MATEMATIK</option>
+                        <option value="SN">SAINS</option>
+                        <option value="PI">PENDIDIKAN ISLAM</option>
+                        <option value="PM">PENDIDIKAN MORAL</option>
+                    </select>
+
+                    <!-- Class Selector -->
+                    <select id="classNameSelect" onchange="changeClassName(this.value)" class="bg-indigo-900 border border-indigo-700 text-white text-xs sm:text-sm rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-400 font-medium">
+                        <option value="2 CEMERLANG">2 HAMKA</option>
+                        <option value="2 PINTAR">2 ZAABA</option>
+                        <option value="3 CERDIK">3 HAMKA</option>
+                        <option value="4 BESTARI">3 ZAABA</option>
+                    </select>
+
+                    <!-- Quick Action Buttons -->
+                    <button onclick="openModal('addStudentModal')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg shadow flex items-center space-x-1.5 transition">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span class="hidden md:inline">Tambah Murid</span>
+                    </button>
+
+                    <button onclick="openModal('settingsModal')" class="bg-indigo-800 hover:bg-indigo-700 text-indigo-200 hover:text-white p-2 rounded-lg transition" title="Tetapan Sekolah & Guru">
+                        <i class="fa-solid fa-gear text-base"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs Bar -->
+        <div class="bg-indigo-900 px-4 sm:px-8 border-t border-indigo-800 overflow-x-auto no-scrollbar">
+            <div class="max-w-7xl mx-auto flex space-x-1 sm:space-x-2 py-2 text-xs sm:text-sm font-medium min-w-max">
+                <button onclick="switchTab('overall')" id="tab-overall" class="tab-btn active bg-amber-400 text-indigo-950 font-bold px-3.5 py-2 rounded-lg flex items-center space-x-2 transition shadow-sm">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard Keseluruhan PBD</span>
+                </button>
+                <button onclick="switchTab('skill1')" id="tab-skill1" class="tab-btn text-indigo-200 hover:bg-indigo-800 hover:text-white px-3.5 py-2 rounded-lg flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-comments"></i>
+                    <span id="navSkill1Label">1. Mendengar & Bertutur</span>
+                </button>
+                <button onclick="switchTab('skill2')" id="tab-skill2" class="tab-btn text-indigo-200 hover:bg-indigo-800 hover:text-white px-3.5 py-2 rounded-lg flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span id="navSkill2Label">2. Membaca</span>
+                </button>
+                <button onclick="switchTab('skill3')" id="tab-skill3" class="tab-btn text-indigo-200 hover:bg-indigo-800 hover:text-white px-3.5 py-2 rounded-lg flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-pen-nib"></i>
+                    <span id="navSkill3Label">3. Menulis</span>
+                </button>
+                <button onclick="switchTab('skill4')" id="tab-skill4" class="tab-btn text-indigo-200 hover:bg-indigo-800 hover:text-white px-3.5 py-2 rounded-lg flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-feather"></i>
+                    <span id="navSkill4Label">4. Seni Bahasa & Tatabahasa</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 no-print">
+
+        <!-- TAB 1: OVERALL PBD DASHBOARD -->
+        <div id="view-overall" class="tab-content space-y-6">
+            
+            <!-- Summary Stats Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                        <i class="fa-solid fa-users text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Jumlah Murid</p>
+                        <h3 id="statTotalPupils" class="text-2xl font-black text-slate-800">32</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                        <i class="fa-solid fa-chart-line text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Purata Kelas (TP)</p>
+                        <h3 id="statAverageTP" class="text-2xl font-black text-slate-800">0.0</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="p-3 bg-teal-50 text-teal-600 rounded-xl">
+                        <i class="fa-solid fa-circle-check text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Mencapai Min KPM (≥TP3)</p>
+                        <h3 id="statMasteryRate" class="text-2xl font-black text-slate-800">0%</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                    <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                        <i class="fa-solid fa-award text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Cemerlang (TP5-6)</p>
+                        <h3 id="statTopAchievers" class="text-2xl font-black text-slate-800">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TP Breakdown Progress Section -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-bar text-indigo-600"></i>
+                            <span>Taburan Tahap Penguasaan (TP) Keseluruhan Kelas</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Analisis pencapaian murid dari TP1 hingga TP6 mengikut piawaian KPM.</p>
+                    </div>
+                    <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100 self-start sm:self-auto">
+                        SASARAN KPM: MINIMA TP3
+                    </span>
+                </div>
+
+                <!-- Combined Progress Bar -->
+                <div id="tpCombinedProgressBar" class="h-4 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
+                    <!-- Dynamic segments -->
+                </div>
+
+                <!-- Detailed TP Cards Count Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 pt-1">
+                    <div class="p-2.5 rounded-xl border border-red-200 bg-red-50 text-center">
+                        <div class="text-[11px] font-bold text-red-700 uppercase">TP 1 (Sangat Terhad)</div>
+                        <div id="countTP1" class="text-xl font-black text-red-600">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl border border-orange-200 bg-orange-50 text-center">
+                        <div class="text-[11px] font-bold text-orange-700 uppercase">TP 2 (Terhad)</div>
+                        <div id="countTP2" class="text-xl font-black text-orange-600">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl border border-amber-200 bg-amber-50 text-center">
+                        <div class="text-[11px] font-bold text-amber-700 uppercase">TP 3 (Memuaskan)</div>
+                        <div id="countTP3" class="text-xl font-black text-amber-600">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl border border-lime-200 bg-lime-50 text-center">
+                        <div class="text-[11px] font-bold text-lime-800 uppercase">TP 4 (Baik)</div>
+                        <div id="countTP4" class="text-xl font-black text-lime-700">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50 text-center">
+                        <div class="text-[11px] font-bold text-emerald-800 uppercase">TP 5 (Sangat Baik)</div>
+                        <div id="countTP5" class="text-xl font-black text-emerald-600">0</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl border border-teal-200 bg-teal-50 text-center">
+                        <div class="text-[11px] font-bold text-teal-800 uppercase">TP 6 (Cemerlang)</div>
+                        <div id="countTP6" class="text-xl font-black text-teal-700">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Master Student Table Controls & Search -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <!-- Search & Filter Inputs -->
+                    <div class="flex flex-wrap items-center gap-2 flex-1">
+                        <div class="relative min-w-[220px] flex-1">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                            <input type="text" id="searchInput" oninput="renderAllViews()" placeholder="Cari nama, ID Murid atau No. IC..." class="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+
+                        <select id="tpFilter" onchange="renderAllViews()" class="py-2 px-3 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="ALL">Semua Tahap TP</option>
+                            <option value="1">TP 1 (Sangat Terhad)</option>
+                            <option value="2">TP 2 (Terhad)</option>
+                            <option value="3">TP 3 (Memuaskan)</option>
+                            <option value="4">TP 4 (Baik)</option>
+                            <option value="5">TP 5 (Sangat Baik)</option>
+                            <option value="6">TP 6 (Cemerlang)</option>
+                        </select>
+                    </div>
+
+                    <!-- Data Backup & Export Toolbar -->
+                    <div class="flex items-center space-x-2">
+                        <button onclick="exportToCSV()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-lg font-medium flex items-center space-x-1.5 shadow-sm transition" title="Eksport ke CSV / Excel">
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                            <span>Muat Turun CSV</span>
+                        </button>
+                        <button onclick="exportJSONData()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-lg font-medium flex items-center space-x-1.5 shadow-sm transition" title="Sandarkan Data JSON">
+                            <i class="fa-solid fa-download text-indigo-600"></i>
+                            <span>Backup Data</span>
+                        </button>
+                        <label class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs px-3 py-2 rounded-lg font-medium flex items-center space-x-1.5 shadow-sm cursor-pointer transition" title="Pulihkan Data JSON">
+                            <i class="fa-solid fa-upload text-amber-600"></i>
+                            <span>Restore Data</span>
+                            <input type="file" id="importJsonInput" onchange="importJSONData(event)" accept=".json" class="hidden">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Master Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 uppercase text-[11px] font-bold tracking-wider border-b border-slate-200">
+                                <th class="p-3.5 pl-4 w-10">No.</th>
+                                <th class="p-3.5">Maklumat Murid (Nama / ID / IC)</th>
+                                <th class="p-3.5 text-center" id="thSkill1">Kemahiran 1</th>
+                                <th class="p-3.5 text-center" id="thSkill2">Kemahiran 2</th>
+                                <th class="p-3.5 text-center" id="thSkill3">Kemahiran 3</th>
+                                <th class="p-3.5 text-center" id="thSkill4">Kemahiran 4</th>
+                                <th class="p-3.5 text-center">TP Keseluruhan</th>
+                                <th class="p-3.5 text-center">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="masterStudentTableBody" class="divide-y divide-slate-200">
+                            <!-- Populated dynamically with 32 pupils -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="emptyStateMaster" class="hidden p-8 text-center text-slate-500">
+                    <i class="fa-solid fa-user-slash text-4xl mb-2 text-slate-300"></i>
+                    <p class="font-medium">Tiada murid ditemui mengikut kriteria carian anda.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2, 3, 4, 5: INDIVIDUAL SKILL EVALUATION VIEWS -->
+        <div id="view-skill" class="tab-content hidden space-y-6">
+            
+            <!-- Skill Overview Header Banner -->
+            <div class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-slate-800 text-white p-5 rounded-xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span id="activeSkillNumberBadge" class="bg-amber-400 text-indigo-950 text-xs px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">KEMAHIRAN 1</span>
+                        <h2 id="activeSkillTitle" class="text-xl font-extrabold">Kemahiran Mendengar & Bertutur</h2>
+                    </div>
+                    <p id="activeSkillSubtext" class="text-xs text-indigo-200 mt-1">Pilih Tahap Penguasaan (TP1 - TP6) bagi setiap murid dan masukkan ulasan pemerhatian jika perlu.</p>
+                </div>
+
+                <!-- Batch Action Buttons -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="setAllSkillTP(3)" class="bg-indigo-800/80 hover:bg-indigo-700 text-indigo-100 text-xs px-3 py-2 rounded-lg transition border border-indigo-700 font-medium">
+                        Tetapkan Semua TP 3
+                    </button>
+                    <button onclick="setAllSkillTP(4)" class="bg-indigo-800/80 hover:bg-indigo-700 text-indigo-100 text-xs px-3 py-2 rounded-lg transition border border-indigo-700 font-medium">
+                        Tetapkan Semua TP 4
+                    </button>
+                </div>
+            </div>
+
+            <!-- Performance Standard Quick Reference Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-2 text-xs">
+                <div class="p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-900">
+                    <span class="font-bold block text-red-700">TP 1: Sangat Terhad</span>
+                    <span class="text-[11px] opacity-80">Sangat memerlukan bimbingan guru.</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-orange-50 border border-orange-200 text-orange-900">
+                    <span class="font-bold block text-orange-700">TP 2: Terhad</span>
+                    <span class="text-[11px] opacity-80">Mencapai tahap minima dengan panduan.</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900">
+                    <span class="font-bold block text-amber-700">TP 3: Memuaskan</span>
+                    <span class="text-[11px] opacity-80">Mencapai tahap minima secara berdikari.</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-lime-50 border border-lime-200 text-lime-900">
+                    <span class="font-bold block text-lime-800">TP 4: Baik</span>
+                    <span class="text-[11px] opacity-80">Melaksanakan tugasan dengan baik.</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900">
+                    <span class="font-bold block text-emerald-800">TP 5: Sangat Baik</span>
+                    <span class="text-[11px] opacity-80">Berkeupayaan tinggi dan konsisten.</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-teal-50 border border-teal-200 text-teal-900">
+                    <span class="font-bold block text-teal-800">TP 6: Cemerlang</span>
+                    <span class="text-[11px] opacity-80">Kreatif, inovatif dan teladan.</span>
+                </div>
+            </div>
+
+            <!-- Skill Evaluation Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 uppercase text-[11px] font-bold tracking-wider border-b border-slate-200">
+                                <th class="p-3.5 pl-4 w-10">No.</th>
+                                <th class="p-3.5 w-72">Maklumat Murid</th>
+                                <th class="p-3.5 text-center">Tahap Penguasaan (Pilih TP1 - TP6)</th>
+                                <th class="p-3.5">Catatan / Ulasan Pemerhatian Guru</th>
+                            </tr>
+                        </thead>
+                        <tbody id="skillEvaluationTableBody" class="divide-y divide-slate-200">
+                            <!-- Dynamically loaded based on selected skill -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL: KPM Individual PBD Report Slip (Pelaporan PBD Individual) -->
+    <div id="reportCardModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden my-auto">
+            
+            <!-- Modal Header (No Print) -->
+            <div class="bg-slate-100 p-4 border-b border-slate-200 flex items-center justify-between no-print">
+                <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                    <i class="fa-solid fa-file-invoice text-indigo-600"></i>
+                    <span>Pratonton Pelaporan Pentaksiran Bilik Darjah (PBD)</span>
+                </h3>
+                <div class="flex items-center space-x-2">
+                    <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm px-4 py-2 rounded-lg font-medium shadow flex items-center space-x-1.5 transition">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak / Cetak PDF</span>
+                    </button>
+                    <button onclick="closeModal('reportCardModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Printable Report Document Content -->
+            <div id="printableReportCard" class="p-8 space-y-6 overflow-y-auto flex-1 bg-white print-card text-slate-900">
+                
+                <!-- KPM School & Document Header -->
+                <div class="border-b-2 border-slate-900 pb-4 flex justify-between items-start">
+                    <div>
+                        <h2 id="reportSchoolName" class="text-xl font-black text-slate-900 tracking-tight uppercase">SK SERI BINTANG UTAMA</h2>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">PELAPORAN PENTAKSIRAN BILIK DARJAH (PBD)</h3>
+                        <p class="text-xs text-slate-600 mt-0.5">Kementerian Pendidikan Malaysia (KPM)</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block bg-slate-100 text-slate-900 font-bold px-3 py-1 rounded text-xs border border-slate-300">
+                            SESI AKADEMIK 2026/2027
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Pupil Metadata -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-lg border border-slate-300 text-xs">
+                    <div>
+                        <span class="text-slate-500 block uppercase font-bold text-[10px]">NAMA MURID:</span>
+                        <span id="reportPupilName" class="font-extrabold text-slate-900 text-xs">N/A</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-500 block uppercase font-bold text-[10px]">ID MURID:</span>
+                        <span id="reportPupilID" class="font-bold text-slate-800">N/A</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-500 block uppercase font-bold text-[10px]">NO. IC:</span>
+                        <span id="reportPupilIC" class="font-bold text-slate-800">N/A</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-500 block uppercase font-bold text-[10px]">MATA PELAJARAN / KELAS:</span>
+                        <span id="reportSubjectAndClass" class="font-bold text-indigo-900">BAHASA MELAYU (2 CEMERLANG)</span>
+                    </div>
+                </div>
+
+                <!-- Detailed Skills Summary Table -->
+                <div>
+                    <h4 class="font-extrabold text-slate-900 text-xs mb-2 uppercase tracking-wide border-l-4 border-indigo-700 pl-2">
+                        Pencapaian Mengikut Kemahiran Subjek
+                    </h4>
+                    <table class="w-full text-xs text-left border border-slate-400 border-collapse">
+                        <thead class="bg-slate-100 text-slate-800 font-bold uppercase">
+                            <tr>
+                                <th class="border border-slate-400 p-2.5 w-1/3">Kemahiran (Skills)</th>
+                                <th class="border border-slate-400 p-2.5 w-20 text-center">Tahap (TP)</th>
+                                <th class="border border-slate-400 p-2.5">Tafsiran Standard Prestasi</th>
+                                <th class="border border-slate-400 p-2.5">Ulasan Guru / Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportSkillsTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Overall TP Summary Box -->
+                <div class="p-4 rounded-xl border border-indigo-300 bg-indigo-50/60 flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] uppercase font-bold text-slate-600 block">TAHAP PENGUASAAN KESELURUHAN (OVERALL TP)</span>
+                        <h3 id="reportOverallDescriptorTitle" class="text-base font-extrabold text-indigo-950">TP 4 - BAIK</h3>
+                        <p id="reportOverallDescriptorDesc" class="text-xs text-slate-700 max-w-lg mt-0.5">
+                            Murid menunjukkan prestasi yang baik, berupaya melaksanakan tugasan secara berdikari dan konsisten.
+                        </p>
+                    </div>
+                    <div id="reportOverallTPBadge" class="h-16 w-16 rounded-full bg-lime-500 text-white font-black text-2xl flex items-center justify-center shadow border-2 border-white">
+                        4
+                    </div>
+                </div>
+
+                <!-- Overall Remarks / General Comments -->
+                <div class="space-y-1">
+                    <label class="font-bold text-slate-800 text-xs uppercase tracking-wide">Ulasan Keseluruhan Guru Mata Pelajaran:</label>
+                    <div id="reportTeacherGeneralComment" class="p-3 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 italic min-h-[60px]">
+                        Murid menunjukkan minat yang sangat tinggi dan sentiasa memberikan kerjasama yang cemerlang dalam semua aktiviti bilik darjah.
+                    </div>
+                </div>
+
+                <!-- Signature Footer -->
+                <div class="pt-8 grid grid-cols-2 gap-8 text-center text-xs text-slate-700">
+                    <div class="space-y-12">
+                        <div class="border-b border-slate-400 w-48 mx-auto"></div>
+                        <div>
+                            <p class="font-bold text-slate-900" id="reportTeacherSignatureName">GURU MATA PELAJARAN</p>
+                            <p class="text-[11px] text-slate-500">Tarikh: <span id="reportPrintDate">10/10/2026</span></p>
+                        </div>
+                    </div>
+                    <div class="space-y-12">
+                        <div class="border-b border-slate-400 w-48 mx-auto"></div>
+                        <div>
+                            <p class="font-bold text-slate-900">GURU BESAR / PENGETUA</p>
+                            <p class="text-[11px] text-slate-500">Cap & Tandatangan Rasmi</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Add/Edit Pupil -->
+    <div id="addStudentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 id="studentModalTitle" class="font-bold text-slate-800 text-lg flex items-center space-x-2">
+                    <i class="fa-solid fa-user-plus text-indigo-600"></i>
+                    <span>Tambah Murid Baharu</span>
+                </h3>
+                <button onclick="closeModal('addStudentModal')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form id="studentForm" onsubmit="saveStudentForm(event)" class="space-y-4">
+                <input type="hidden" id="studentFormOriginalId" value="">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nama Penuh Murid *</label>
+                    <input type="text" id="inputStudentName" required placeholder="cth: ADAM MIKAIL BIN AMIRUL" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none uppercase">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">ID Murid *</label>
+                        <input type="text" id="inputStudentID" required placeholder="cth: 231403008057" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">No. IC *</label>
+                        <input type="text" id="inputStudentIC" required placeholder="cth: 180815140073" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- Initial TPs -->
+                <div class="border-t pt-3">
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-2">Skor TP Asas Murid (TP1 - TP6)</label>
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <span id="formSkill1Label" class="block font-medium text-slate-600 mb-1">Kemahiran 1</span>
+                            <select id="inputSkill1TP" class="w-full p-2 border border-slate-300 rounded-lg">
+                                <option value="1">TP 1</option>
+                                <option value="2">TP 2</option>
+                                <option value="3" selected>TP 3</option>
+                                <option value="4">TP 4</option>
+                                <option value="5">TP 5</option>
+                                <option value="6">TP 6</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span id="formSkill2Label" class="block font-medium text-slate-600 mb-1">Kemahiran 2</span>
+                            <select id="inputSkill2TP" class="w-full p-2 border border-slate-300 rounded-lg">
+                                <option value="1">TP 1</option>
+                                <option value="2">TP 2</option>
+                                <option value="3" selected>TP 3</option>
+                                <option value="4">TP 4</option>
+                                <option value="5">TP 5</option>
+                                <option value="6">TP 6</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span id="formSkill3Label" class="block font-medium text-slate-600 mb-1">Kemahiran 3</span>
+                            <select id="inputSkill3TP" class="w-full p-2 border border-slate-300 rounded-lg">
+                                <option value="1">TP 1</option>
+                                <option value="2">TP 2</option>
+                                <option value="3" selected>TP 3</option>
+                                <option value="4">TP 4</option>
+                                <option value="5">TP 5</option>
+                                <option value="6">TP 6</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span id="formSkill4Label" class="block font-medium text-slate-600 mb-1">Kemahiran 4</span>
+                            <select id="inputSkill4TP" class="w-full p-2 border border-slate-300 rounded-lg">
+                                <option value="1">TP 1</option>
+                                <option value="2">TP 2</option>
+                                <option value="3" selected>TP 3</option>
+                                <option value="4">TP 4</option>
+                                <option value="5">TP 5</option>
+                                <option value="6">TP 6</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-2 pt-3 border-t">
+                    <button type="button" onclick="closeModal('addStudentModal')" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow">Simpan Maklumat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Settings & School Customization -->
+    <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders text-indigo-600"></i>
+                    <span>Tetapan Sekolah & Subjek</span>
+                </h3>
+                <button onclick="closeModal('settingsModal')" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form id="settingsForm" onsubmit="saveSettingsForm(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nama Sekolah</label>
+                    <input type="text" id="settingSchool" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Nama Guru Mata Pelajaran</label>
+                    <input type="text" id="settingTeacher" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                </div>
+
+                <div class="border-t pt-3 space-y-3">
+                    <label class="block text-xs font-semibold text-slate-700 uppercase">Nama Tajuk Kemahiran Subjek</label>
+                    <div>
+                        <label class="block text-[11px] text-slate-500">Kemahiran 1</label>
+                        <input type="text" id="settingSkill1" required class="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-500">Kemahiran 2</label>
+                        <input type="text" id="settingSkill2" required class="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-500">Kemahiran 3</label>
+                        <input type="text" id="settingSkill3" required class="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-500">Kemahiran 4</label>
+                        <input type="text" id="settingSkill4" required class="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-3 border-t">
+                    <button type="button" onclick="confirmResetData()" class="text-xs text-red-600 hover:text-red-700 font-semibold underline">
+                        Reset Ke 32 Murid Asal
+                    </button>
+                    <div class="flex space-x-2">
+                        <button type="button" onclick="closeModal('settingsModal')" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+                        <button type="submit" class="px-4 py-2 text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg shadow">Simpan Tetapan</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <script>
+        /**
+         * PBD ASSESSMENT TRACKER SYSTEM - JAVASCRIPT CORE
+         * Pre-loaded with exact 32 pupils list provided
+         */
+
+        const STORAGE_KEY_STUDENTS = 'pbd_tracker_students_exact32_v2';
+        const STORAGE_KEY_CONFIG = 'pbd_tracker_config_v2';
+
+        // Default Configuration
+        const defaultConfig = {
+            subjectCode: 'BM',
+            subjectName: 'BAHASA MELAYU',
+            className: '2 CEMERLANG',
+            school: 'SK SERI BINTANG UTAMA',
+            teacher: 'CIKGU NURUL AINI BINTI ZULKIFLI',
+            skill1: 'Kemahiran Mendengar & Bertutur',
+            skill2: 'Kemahiran Membaca',
+            skill3: 'Kemahiran Menulis',
+            skill4: 'Aspek Seni Bahasa & Tatabahasa'
+        };
+
+        // TP Descriptors & Color Tokens
+        const tpConfig = {
+            1: { name: 'Sangat Terhad', badgeBg: 'bg-red-500', badgeText: 'text-white', border: 'border-red-300', desc: 'Sangat Terhad - Memerlukan banyak bimbingan, panduan dan latihan dalam kemahiran asas.' },
+            2: { name: 'Terhad', badgeBg: 'bg-orange-500', badgeText: 'text-white', border: 'border-orange-300', desc: 'Terhad - Menunjukkan kefahaman asas tetapi masih memerlukan bimbingan berkala.' },
+            3: { name: 'Memuaskan', badgeBg: 'bg-amber-500', badgeText: 'text-white', border: 'border-amber-300', desc: 'Memuaskan - Mencapai tahap kecekapan asas secara berdikari dan konsisten.' },
+            4: { name: 'Baik', badgeBg: 'bg-lime-500', badgeText: 'text-white', border: 'border-lime-300', desc: 'Baik - Melakukan tugasan dengan baik, cekap dan berkeyakinan tinggi.' },
+            5: { name: 'Sangat Baik', badgeBg: 'bg-emerald-500', badgeText: 'text-white', border: 'border-emerald-300', desc: 'Sangat Baik - Menunjukkan penguasaan tinggi dan berupaya mengaplikasi pengetahuan.' },
+            6: { name: 'Cemerlang', badgeBg: 'bg-teal-600', badgeText: 'text-white', border: 'border-teal-300', desc: 'Cemerlang - Menunjukkan kebolehan cemerlang, kreatif, inovatif dan menjadi teladan.' }
+        };
+
+        // EXACT 32 PUPILS LIST FROM IMAGE
+        const exact32Pupils = [
+            { id: '231403008057', name: 'ADAM MIKAIL BIN AMIRUL', ic: '180815140073', skill1: 4, skill2: 4, skill3: 3, skill4: 4 },
+            { id: '231403002462', name: 'AIRA MALAIQA SOFIA BINTI MOHD SHAHRIL', ic: '181022140326', skill1: 5, skill2: 5, skill3: 4, skill4: 5 },
+            { id: '221003008132', name: 'AKIF RIZQI BIN KHAIRULADHA', ic: '180306060243', skill1: 3, skill2: 4, skill3: 3, skill4: 3 },
+            { id: '241401368892', name: 'ANA NUR DELYANA BINTI MOHAMAD AMIN', ic: '180326140128', skill1: 4, skill2: 4, skill3: 4, skill4: 4 },
+            { id: '230101024359', name: 'AQISHA AAIRA BINTI MOHAMAD RASHIDE', ic: '180404050540', skill1: 5, skill2: 4, skill3: 5, skill4: 5 },
+            { id: '251403022367', name: 'DANISH MIKHAIL BIN MOHAMAD AZUA FAKIMIE', ic: '180608140249', skill1: 3, skill2: 3, skill3: 3, skill4: 4 },
+            { id: '241402229853', name: 'HANNAH MARYAM BINTI MOHD HAFIZ', ic: '181105090192', skill1: 5, skill2: 6, skill3: 5, skill4: 5 },
+            { id: '231401013790', name: 'HOLILUR ROHMAN ALFATHIH BIN NURUL YAKIN', ic: '180102140073', skill1: 3, skill2: 3, skill3: 2, skill4: 3 },
+            { id: '251402301373', name: 'LAVENDRAN A/L MAHENDARAN', ic: '181121103037', skill1: 4, skill2: 4, skill3: 3, skill4: 4 },
+            { id: '251403022369', name: 'MOHAMAD HADIF MIRZA BIN MOHAMAD AMIRUL AIZA', ic: '180329100535', skill1: 4, skill2: 4, skill3: 4, skill4: 4 },
+            { id: '231003025224', name: 'MUHAMMAD AARYAN BIN MOHD DANIAL-ALEEM', ic: '180916101647', skill1: 5, skill2: 5, skill3: 5, skill4: 6 },
+            { id: '231403005119', name: 'MUHAMMAD ADEEB AIMAN BIN OTHMAN', ic: '180702140333', skill1: 4, skill2: 3, skill3: 4, skill4: 3 },
+            { id: '231403002446', name: 'MUHAMMAD AL ALIF FARHAN BIN AHMAD SAFUAN', ic: '180920141297', skill1: 3, skill2: 4, skill3: 3, skill4: 4 },
+            { id: '241401369261', name: 'MUHAMMAD AL FATEH BIN MUHAMMAD MUHAIMIN', ic: '180912030407', skill1: 4, skill2: 4, skill3: 4, skill4: 4 },
+            { id: '231403005118', name: 'MUHAMMAD ALHARRAZ BIN ABDUL HAFIZ', ic: '180228060749', skill1: 3, skill2: 3, skill3: 3, skill4: 3 },
+            { id: '251403022372', name: 'MUHAMMAD AYYAD BIN MD KAMIL', ic: '180825140085', skill1: 4, skill2: 4, skill3: 4, skill4: 5 },
+            { id: '231403005325', name: 'MUHAMMAD DANI FAHRI BIN MOHD KHAIRI', ic: '180110140567', skill1: 3, skill2: 2, skill3: 3, skill4: 3 },
+            { id: '251403022375', name: 'MUHAMMAD IMAN ZHARIF BIN MOHAMAD SUFIAN', ic: '180525140593', skill1: 4, skill2: 4, skill3: 3, skill4: 4 },
+            { id: '241402229908', name: 'MUHAMMAD RAFIF ZAFRAN BIN MOHD FARID', ic: '181107140261', skill1: 5, skill2: 5, skill3: 4, skill4: 5 },
+            { id: '251403022376', name: 'MUHAMMAD ZAKWAN HADIF BIN ZAWAWI', ic: '181122140569', skill1: 4, skill2: 3, skill3: 4, skill4: 4 },
+            { id: '231003043491', name: 'NOOR AMEENA AISYA BINTI MOHAMAD FAIROL AZUAN', ic: '180112102556', skill1: 5, skill2: 5, skill3: 5, skill4: 5 },
+            { id: '251403022378', name: 'NUR ASYIQAH BINTI MOHAMMAD BASRI', ic: '180610140352', skill1: 4, skill2: 4, skill3: 4, skill4: 4 },
+            { id: '251403022380', name: 'NUR FATIN AULIYA BINTI FAIZUL', ic: '181025140188', skill1: 5, skill2: 6, skill3: 5, skill4: 6 },
+            { id: '221403000579', name: 'NUR JAUHARAH ANNAILA BINTI NOR MUHAMMAD FAEZ', ic: '181222101006', skill1: 4, skill2: 4, skill3: 4, skill4: 4 },
+            { id: '241402246397', name: 'NUR NUHA MEDINA BINTI MUHAMMAD ALIF NAIM', ic: '180525141174', skill1: 5, skill2: 4, skill3: 5, skill4: 5 },
+            { id: '231403002607', name: 'NUR SHAZALEESYA MIKAYLA BINTI KAMARULSHAZRAYM', ic: '181213140142', skill1: 6, skill2: 6, skill3: 6, skill4: 6 },
+            { id: '231403003583', name: 'NURUL AINUL MARDHIAH QISTINA BINTI MOHD RIDZU', ic: '180302140406', skill1: 4, skill2: 5, skill3: 4, skill4: 5 },
+            { id: '241402229931', name: 'UMMI SYAHIRAH BINTI SAIFUL', ic: '180606140990', skill1: 4, skill2: 4, skill3: 3, skill4: 4 },
+            { id: '251403022381', name: 'WAN AISYAH BINTI WAN MOHD SYAWALI', ic: '180427110286', skill1: 5, skill2: 5, skill3: 5, skill4: 5 },
+            { id: '221403002004', name: 'YAP VARUNESH', ic: '180517140657', skill1: 4, skill2: 4, skill3: 4, skill4: 4 },
+            { id: '231403001919', name: 'YUSUFF HAIDAR BIN EDDIE ASMAWI', ic: '181205140521', skill1: 4, skill2: 3, skill3: 4, skill4: 4 },
+            { id: '231403001912', name: 'MUHAMMAD ANAQI IRSYAD BIN SAIFUDDIN', ic: '181205140524', skill1: 3, skill2: 3, skill3: 3, skill4: 3 }
+        ];
+
+        // Reactive Application State
+        let state = {
+            students: [],
+            config: { ...defaultConfig },
+            activeTab: 'overall',
+            searchQuery: '',
+            filterTP: 'ALL'
+        };
+
+        // Initialize App State
+        function initApp() {
+            // Load Settings Config
+            const savedConfig = localStorage.getItem(STORAGE_KEY_CONFIG);
+            if (savedConfig) {
+                try {
+                    state.config = { ...defaultConfig, ...JSON.parse(savedConfig) };
+                } catch (e) {
+                    state.config = { ...defaultConfig };
+                }
+            }
+
+            // Load Students Data
+            const savedStudents = localStorage.getItem(STORAGE_KEY_STUDENTS);
+            if (savedStudents) {
+                try {
+                    state.students = JSON.parse(savedStudents);
+                } catch (e) {
+                    state.students = cloneDefaultStudents();
+                }
+            } else {
+                state.students = cloneDefaultStudents();
+                saveStudentsToStorage();
+            }
+
+            // Sync Dropdowns
+            document.getElementById('subjectSelect').value = state.config.subjectCode || 'BM';
+            document.getElementById('classNameSelect').value = state.config.className || '2 CEMERLANG';
+
+            updateConfigLabels();
+            renderAllViews();
+        }
+
+        function cloneDefaultStudents() {
+            return exact32Pupils.map(p => ({
+                ...p,
+                remarks: {
+                    skill1: 'Menunjukkan kefahaman dan bertutur dengan lancar.',
+                    skill2: 'Membaca ayat dengan sebutan yang jelas.',
+                    skill3: 'Boleh menulis ayat dengan ejaan yang betul.',
+                    skill4: 'Memahami aspek tatabahasa asas dengan baik.'
+                },
+                teacherComments: 'Murid menunjukkan peningkatan yang berterusan dan sentiasa aktif dalam bilik darjah.'
+            }));
+        }
+
+        function saveStudentsToStorage() {
+            localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(state.students));
+        }
+
+        function saveConfigToStorage() {
+            localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(state.config));
+        }
+
+        // Calculate Overall TP for a Pupil (Rounded Average)
+        function calculateOverallTP(student) {
+            const scores = [
+                parseInt(student.skill1 || 3),
+                parseInt(student.skill2 || 3),
+                parseInt(student.skill3 || 3),
+                parseInt(student.skill4 || 3)
+            ];
+            const sum = scores.reduce((a, b) => a + b, 0);
+            return Math.round(sum / scores.length);
+        }
+
+        // Subject Changer Handler
+        function changeSubject(code) {
+            state.config.subjectCode = code;
+            
+            const subjectMap = {
+                'BM': { name: 'BAHASA MELAYU', s1: 'Kemahiran Mendengar & Bertutur', s2: 'Kemahiran Membaca', s3: 'Kemahiran Menulis', s4: 'Aspek Seni Bahasa & Tatabahasa' },
+                'BI': { name: 'BAHASA INGGERIS', s1: 'Listening', s2: 'Reading', s3: 'Writing', s4: 'Speaking' },
+                'MT': { name: 'MATEMATIK', s1: 'Nombor & Operasi', s2: 'Sukatan & Geometri', s3: 'Perkaitan & Algebra', s4: 'Statistik & Kebarangkalian' },
+                'SN': { name: 'SAINS', s1: 'Kemahiran Proses Sains', s2: 'Sains Hayat & Fizikal', s3: 'Sains Bahan & Bumi', s4: 'Reka Bentuk & Teknologi' },
+                'PI': { name: 'PENDIDIKAN ISLAM', s1: 'Al-Quran & Hadis', s2: 'Akidah & Ibadah', s3: 'Sirah & Adab', s4: 'Jawi' },
+                'PM': { name: 'PENDIDIKAN MORAL', s1: 'Penaakulan Moral', s2: 'Emosi Moral', s3: 'Perlakuan Moral', s4: 'Pengamalan Nilai' }
+            };
+
+            const sub = subjectMap[code] || subjectMap['BM'];
+            state.config.subjectName = sub.name;
+            state.config.skill1 = sub.s1;
+            state.config.skill2 = sub.s2;
+            state.config.skill3 = sub.s3;
+            state.config.skill4 = sub.s4;
+
+            saveConfigToStorage();
+            updateConfigLabels();
+            renderAllViews();
+            showToast(`Mata pelajaran ditukar ke ${sub.name}`);
+        }
+
+        function changeClassName(cName) {
+            state.config.className = cName;
+            saveConfigToStorage();
+            renderAllViews();
+            showToast(`Kelas ditukar ke ${cName}`);
+        }
+
+        // Update Labels based on Config
+        function updateConfigLabels() {
+            document.getElementById('navSkill1Label').textContent = `1. ${state.config.skill1}`;
+            document.getElementById('navSkill2Label').textContent = `2. ${state.config.skill2}`;
+            document.getElementById('navSkill3Label').textContent = `3. ${state.config.skill3}`;
+            document.getElementById('navSkill4Label').textContent = `4. ${state.config.skill4}`;
+
+            document.getElementById('thSkill1').textContent = state.config.skill1;
+            document.getElementById('thSkill2').textContent = state.config.skill2;
+            document.getElementById('thSkill3').textContent = state.config.skill3;
+            document.getElementById('thSkill4').textContent = state.config.skill4;
+
+            document.getElementById('formSkill1Label').textContent = state.config.skill1;
+            document.getElementById('formSkill2Label').textContent = state.config.skill2;
+            document.getElementById('formSkill3Label').textContent = state.config.skill3;
+            document.getElementById('formSkill4Label').textContent = state.config.skill4;
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-amber-400', 'text-indigo-950', 'font-bold', 'shadow-sm');
+                btn.classList.add('text-indigo-200');
+            });
+
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-amber-400', 'text-indigo-950', 'font-bold', 'shadow-sm');
+                activeBtn.classList.remove('text-indigo-200');
+            }
+
+            document.getElementById('view-overall').classList.add('hidden');
+            document.getElementById('view-skill').classList.add('hidden');
+
+            if (tabId === 'overall') {
+                document.getElementById('view-overall').classList.remove('hidden');
+            } else {
+                document.getElementById('view-skill').classList.remove('hidden');
+                setupSkillView(tabId);
+            }
+
+            renderAllViews();
+        }
+
+        function setupSkillView(skillKey) {
+            let title = '';
+            let badge = '';
+
+            switch(skillKey) {
+                case 'skill1':
+                    title = state.config.skill1;
+                    badge = 'KEMAHIRAN 1';
+                    break;
+                case 'skill2':
+                    title = state.config.skill2;
+                    badge = 'KEMAHIRAN 2';
+                    break;
+                case 'skill3':
+                    title = state.config.skill3;
+                    badge = 'KEMAHIRAN 3';
+                    break;
+                case 'skill4':
+                    title = state.config.skill4;
+                    badge = 'KEMAHIRAN 4';
+                    break;
+            }
+
+            document.getElementById('activeSkillTitle').textContent = title;
+            document.getElementById('activeSkillNumberBadge').textContent = badge;
+        }
+
+        // Search & Filter
+        function getFilteredStudents() {
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const tpVal = document.getElementById('tpFilter').value;
+
+            return state.students.filter(student => {
+                const matchesSearch = student.name.toLowerCase().includes(search) || 
+                                      student.id.toLowerCase().includes(search) ||
+                                      student.ic.toLowerCase().includes(search);
+                
+                const overallTP = calculateOverallTP(student);
+                const matchesTP = (tpVal === 'ALL') || (overallTP.toString() === tpVal);
+
+                return matchesSearch && matchesTP;
+            });
+        }
+
+        // Main View Render Dispatcher
+        function renderAllViews() {
+            const filtered = getFilteredStudents();
+
+            if (state.activeTab === 'overall') {
+                renderOverallDashboard(filtered);
+            } else {
+                renderSkillEvaluationTable(filtered, state.activeTab);
+            }
+        }
+
+        function renderOverallDashboard(pupils) {
+            const total = pupils.length;
+            document.getElementById('statTotalPupils').textContent = total;
+
+            if (total === 0) {
+                document.getElementById('statAverageTP').textContent = '0.0';
+                document.getElementById('statMasteryRate').textContent = '0%';
+                document.getElementById('statTopAchievers').textContent = '0';
+                renderTPProgressBar({});
+                renderMasterTable([]);
+                return;
+            }
+
+            let sumOverall = 0;
+            let countMastery = 0; // >= TP3
+            let countTop = 0; // >= TP5
+            const tpCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+
+            pupils.forEach(p => {
+                const tp = calculateOverallTP(p);
+                sumOverall += tp;
+                tpCounts[tp] = (tpCounts[tp] || 0) + 1;
+
+                if (tp >= 3) countMastery++;
+                if (tp >= 5) countTop++;
+            });
+
+            const avg = (sumOverall / total).toFixed(1);
+            const masteryPct = Math.round((countMastery / total) * 100);
+
+            document.getElementById('statAverageTP').textContent = avg;
+            document.getElementById('statMasteryRate').textContent = `${masteryPct}%`;
+            document.getElementById('statTopAchievers').textContent = countTop;
+
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`countTP${i}`).textContent = tpCounts[i] || 0;
+            }
+
+            renderTPProgressBar(tpCounts, total);
+            renderMasterTable(pupils);
+        }
+
+        function renderTPProgressBar(counts, total) {
+            const bar = document.getElementById('tpCombinedProgressBar');
+            bar.innerHTML = '';
+
+            if (!total || total === 0) {
+                bar.innerHTML = '<div class="w-full bg-slate-200"></div>';
+                return;
+            }
+
+            const colors = {
+                1: 'bg-red-500',
+                2: 'bg-orange-500',
+                3: 'bg-amber-500',
+                4: 'bg-lime-500',
+                5: 'bg-emerald-500',
+                6: 'bg-teal-600'
+            };
+
+            for (let i = 1; i <= 6; i++) {
+                const cnt = counts[i] || 0;
+                if (cnt > 0) {
+                    const pct = (cnt / total) * 100;
+                    const seg = document.createElement('div');
+                    seg.className = `${colors[i]} h-full transition-all duration-300`;
+                    seg.style.width = `${pct}%`;
+                    seg.title = `TP ${i}: ${cnt} murid (${Math.round(pct)}%)`;
+                    bar.appendChild(seg);
+                }
+            }
+        }
+
+        function renderMasterTable(pupils) {
+            const tbody = document.getElementById('masterStudentTableBody');
+            const emptyState = document.getElementById('emptyStateMaster');
+            tbody.innerHTML = '';
+
+            if (pupils.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            pupils.forEach((p, index) => {
+                const overallTP = calculateOverallTP(p);
+                const tpInfo = tpConfig[overallTP];
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+
+                tr.innerHTML = `
+                    <td class="p-3.5 pl-4 font-semibold text-slate-400 text-xs">${index + 1}</td>
+                    <td class="p-3.5">
+                        <div class="font-bold text-slate-900">${p.name}</div>
+                        <div class="text-xs text-slate-500 flex flex-wrap items-center gap-2 mt-0.5">
+                            <span class="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-mono text-[11px] font-semibold">ID: ${p.id}</span>
+                            <span class="text-slate-400">|</span>
+                            <span class="font-mono text-[11px]">IC: ${p.ic}</span>
+                        </div>
+                    </td>
+                    <td class="p-3.5 text-center">${renderTPBadge(p.skill1)}</td>
+                    <td class="p-3.5 text-center">${renderTPBadge(p.skill2)}</td>
+                    <td class="p-3.5 text-center">${renderTPBadge(p.skill3)}</td>
+                    <td class="p-3.5 text-center">${renderTPBadge(p.skill4)}</td>
+                    <td class="p-3.5 text-center">
+                        <span class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black ${tpInfo.badgeBg} ${tpInfo.badgeText} shadow-sm">
+                            <span>TP ${overallTP}</span>
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        <div class="flex items-center justify-center space-x-1.5">
+                            <button onclick="openReportCardModal('${p.id}')" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Cetak Slip PBD Murid">
+                                <i class="fa-solid fa-file-invoice text-base"></i>
+                            </button>
+                            <button onclick="editStudentModal('${p.id}')" class="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition" title="Edit Murid">
+                                <i class="fa-solid fa-pen text-base"></i>
+                            </button>
+                            <button onclick="deleteStudent('${p.id}')" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition" title="Padam Murid">
+                                <i class="fa-solid fa-trash text-base"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderTPBadge(tpVal) {
+            const tp = parseInt(tpVal || 3);
+            const cfg = tpConfig[tp] || tpConfig[3];
+            return `<span class="inline-block w-7 h-7 leading-7 text-center rounded-lg text-xs font-black ${cfg.badgeBg} ${cfg.badgeText}">${tp}</span>`;
+        }
+
+        function renderSkillEvaluationTable(pupils, skillKey) {
+            const tbody = document.getElementById('skillEvaluationTableBody');
+            tbody.innerHTML = '';
+
+            if (pupils.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500">Tiada murid ditemui.</td></tr>`;
+                return;
+            }
+
+            pupils.forEach((p, index) => {
+                const currentTP = p[skillKey] || 3;
+                const remarkText = (p.remarks && p.remarks[skillKey]) ? p.remarks[skillKey] : '';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+
+                let gradeButtonsHtml = '<div class="flex items-center justify-center space-x-1.5">';
+                for (let level = 1; level <= 6; level++) {
+                    const isSelected = (level === parseInt(currentTP));
+                    const cfg = tpConfig[level];
+                    const activeClass = isSelected ? `${cfg.badgeBg} text-white ring-2 ring-offset-1 ring-indigo-500 scale-105 shadow` : 'bg-slate-100 text-slate-600 hover:bg-slate-200';
+
+                    gradeButtonsHtml += `
+                        <button type="button" 
+                                onclick="updatePupilSkillScore('${p.id}', '${skillKey}', ${level})"
+                                class="tp-badge-btn h-8 w-8 rounded-lg text-xs font-black transition-all ${activeClass}">
+                            ${level}
+                        </button>
+                    `;
+                }
+                gradeButtonsHtml += '</div>';
+
+                tr.innerHTML = `
+                    <td class="p-3.5 pl-4 font-semibold text-slate-400 text-xs">${index + 1}</td>
+                    <td class="p-3.5">
+                        <div class="font-bold text-slate-900">${p.name}</div>
+                        <div class="text-xs text-slate-500 flex items-center space-x-2 mt-0.5">
+                            <span class="font-mono text-[11px] text-indigo-700 font-semibold">ID: ${p.id}</span>
+                            <span>|</span>
+                            <span class="font-mono text-[11px]">IC: ${p.ic}</span>
+                        </div>
+                    </td>
+                    <td class="p-3.5 text-center">
+                        ${gradeButtonsHtml}
+                    </td>
+                    <td class="p-3.5">
+                        <input type="text" 
+                               value="${escapeHtml(remarkText)}" 
+                               onchange="updatePupilSkillRemark('${p.id}', '${skillKey}', this.value)"
+                               placeholder="Catatan pemerhatian murid..." 
+                               class="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Inline Updater Functions
+        function updatePupilSkillScore(studentId, skillKey, newScore) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                student[skillKey] = parseInt(newScore);
+                saveStudentsToStorage();
+                renderAllViews();
+                showToast(`Skor ${student.name.split(' ')[0]} dikemaskini ke TP ${newScore}`);
+            }
+        }
+
+        function updatePupilSkillRemark(studentId, skillKey, remarkValue) {
+            const student = state.students.find(s => s.id === studentId);
+            if (student) {
+                if (!student.remarks) student.remarks = {};
+                student.remarks[skillKey] = remarkValue;
+                saveStudentsToStorage();
+                showToast(`Catatan disimpan.`);
+            }
+        }
+
+        function setAllSkillTP(score) {
+            const filtered = getFilteredStudents();
+            if (filtered.length === 0) return;
+
+            filtered.forEach(p => {
+                p[state.activeTab] = parseInt(score);
+            });
+            saveStudentsToStorage();
+            renderAllViews();
+            showToast(`Semua murid yang dipaparkan ditetapkan ke TP ${score}`);
+        }
+
+        // Open Pupil Printable Report Card
+        function openReportCardModal(studentId) {
+            const pupil = state.students.find(s => s.id === studentId);
+            if (!pupil) return;
+
+            const overallTP = calculateOverallTP(pupil);
+            const overallInfo = tpConfig[overallTP];
+
+            document.getElementById('reportSchoolName').textContent = state.config.school;
+            document.getElementById('reportPupilName').textContent = pupil.name;
+            document.getElementById('reportPupilID').textContent = pupil.id;
+            document.getElementById('reportPupilIC').textContent = pupil.ic;
+            document.getElementById('reportSubjectAndClass').textContent = `${state.config.subjectName} (${state.config.className})`;
+            document.getElementById('reportTeacherSignatureName').textContent = state.config.teacher.toUpperCase();
+
+            const today = new Date().toLocaleDateString('ms-MY', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            document.getElementById('reportPrintDate').textContent = today;
+
+            const tbody = document.getElementById('reportSkillsTableBody');
+            tbody.innerHTML = '';
+
+            const skillKeys = ['skill1', 'skill2', 'skill3', 'skill4'];
+            skillKeys.forEach((sKey) => {
+                const tpScore = pupil[sKey] || 3;
+                const tpDetails = tpConfig[tpScore];
+                const skillName = state.config[sKey];
+                const remark = (pupil.remarks && pupil.remarks[sKey]) ? pupil.remarks[sKey] : '-';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="border border-slate-400 p-2.5 font-bold text-slate-900">${skillName}</td>
+                    <td class="border border-slate-400 p-2.5 text-center font-black text-sm">
+                        <span class="inline-block px-2.5 py-0.5 rounded text-white ${tpDetails.badgeBg}">TP ${tpScore}</span>
+                    </td>
+                    <td class="border border-slate-400 p-2.5 text-slate-800">${tpDetails.desc}</td>
+                    <td class="border border-slate-400 p-2.5 text-slate-700 italic">${escapeHtml(remark)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('reportOverallDescriptorTitle').textContent = `TP ${overallTP} - ${overallInfo.name.toUpperCase()}`;
+            document.getElementById('reportOverallDescriptorDesc').textContent = overallInfo.desc;
+            
+            const badgeEl = document.getElementById('reportOverallTPBadge');
+            badgeEl.className = `h-16 w-16 rounded-full ${overallInfo.badgeBg} text-white font-black text-2xl flex items-center justify-center shadow border-2 border-white`;
+            badgeEl.textContent = overallTP;
+
+            document.getElementById('reportTeacherGeneralComment').textContent = pupil.teacherComments || 'Murid berdisiplin dan menunjukkan minat yang baik dalam pengajaran dan pembelajaran.';
+
+            openModal('reportCardModal');
+        }
+
+        // Student Add / Edit Form Modal
+        function editStudentModal(studentId) {
+            const pupil = state.students.find(s => s.id === studentId);
+            if (!pupil) return;
+
+            document.getElementById('studentModalTitle').innerHTML = '<i class="fa-solid fa-user-pen text-indigo-600"></i><span>Edit Maklumat Murid</span>';
+            document.getElementById('studentFormOriginalId').value = pupil.id;
+            document.getElementById('inputStudentName').value = pupil.name;
+            document.getElementById('inputStudentID').value = pupil.id;
+            document.getElementById('inputStudentIC').value = pupil.ic;
+
+            document.getElementById('inputSkill1TP').value = pupil.skill1 || 3;
+            document.getElementById('inputSkill2TP').value = pupil.skill2 || 3;
+            document.getElementById('inputSkill3TP').value = pupil.skill3 || 3;
+            document.getElementById('inputSkill4TP').value = pupil.skill4 || 3;
+
+            openModal('addStudentModal');
+        }
+
+        function saveStudentForm(event) {
+            event.preventDefault();
+            const origId = document.getElementById('studentFormOriginalId').value;
+            const name = document.getElementById('inputStudentName').value.trim().toUpperCase();
+            const id = document.getElementById('inputStudentID').value.trim();
+            const ic = document.getElementById('inputStudentIC').value.trim();
+
+            const s1 = parseInt(document.getElementById('inputSkill1TP').value);
+            const s2 = parseInt(document.getElementById('inputSkill2TP').value);
+            const s3 = parseInt(document.getElementById('inputSkill3TP').value);
+            const s4 = parseInt(document.getElementById('inputSkill4TP').value);
+
+            if (origId) {
+                const existingIndex = state.students.findIndex(s => s.id === origId);
+                if (existingIndex !== -1) {
+                    state.students[existingIndex] = {
+                        ...state.students[existingIndex],
+                        name,
+                        id,
+                        ic,
+                        skill1: s1,
+                        skill2: s2,
+                        skill3: s3,
+                        skill4: s4
+                    };
+                    showToast('Maklumat murid dikemaskini.');
+                }
+            } else {
+                const newStudent = {
+                    id: id || `ID-${Date.now()}`,
+                    name,
+                    ic,
+                    skill1: s1,
+                    skill2: s2,
+                    skill3: s3,
+                    skill4: s4,
+                    remarks: {},
+                    teacherComments: 'Murid menunjukkan usaha yang baik.'
+                };
+                state.students.unshift(newStudent);
+                showToast('Murid baharu ditambah.');
+            }
+
+            saveStudentsToStorage();
+            renderAllViews();
+            closeModal('addStudentModal');
+            resetStudentForm();
+        }
+
+        function resetStudentForm() {
+            document.getElementById('studentFormOriginalId').value = '';
+            document.getElementById('studentForm').reset();
+            document.getElementById('studentModalTitle').innerHTML = '<i class="fa-solid fa-user-plus text-indigo-600"></i><span>Tambah Murid Baharu</span>';
+        }
+
+        function deleteStudent(studentId) {
+            const pupil = state.students.find(s => s.id === studentId);
+            if (!pupil) return;
+
+            if (confirm(`Adakah anda pasti mahu memadam murid "${pupil.name}"?`)) {
+                state.students = state.students.filter(s => s.id !== studentId);
+                saveStudentsToStorage();
+                renderAllViews();
+                showToast('Murid dipadam.');
+            }
+        }
+
+        // Settings Form Handling
+        function saveSettingsForm(event) {
+            event.preventDefault();
+            state.config.school = document.getElementById('settingSchool').value.trim();
+            state.config.teacher = document.getElementById('settingTeacher').value.trim();
+
+            state.config.skill1 = document.getElementById('settingSkill1').value.trim();
+            state.config.skill2 = document.getElementById('settingSkill2').value.trim();
+            state.config.skill3 = document.getElementById('settingSkill3').value.trim();
+            state.config.skill4 = document.getElementById('settingSkill4').value.trim();
+
+            saveConfigToStorage();
+            updateConfigLabels();
+            renderAllViews();
+            closeModal('settingsModal');
+            showToast('Tetapan berjaya disimpan.');
+        }
+
+        function openSettingsModal() {
+            document.getElementById('settingSchool').value = state.config.school;
+            document.getElementById('settingTeacher').value = state.config.teacher;
+
+            document.getElementById('settingSkill1').value = state.config.skill1;
+            document.getElementById('settingSkill2').value = state.config.skill2;
+            document.getElementById('settingSkill3').value = state.config.skill3;
+            document.getElementById('settingSkill4').value = state.config.skill4;
+
+            openModal('settingsModal');
+        }
+
+        function confirmResetData() {
+            if (confirm('Sahkan untuk menetapkan semula semua rekod kepada senarai asal 32 murid?')) {
+                state.students = cloneDefaultStudents();
+                state.config = { ...defaultConfig };
+                saveStudentsToStorage();
+                saveConfigToStorage();
+                updateConfigLabels();
+                renderAllViews();
+                closeModal('settingsModal');
+                showToast('Data di-reset kepada senarai asal 32 murid.');
+            }
+        }
+
+        // Export CSV
+        function exportToCSV() {
+            const filtered = getFilteredStudents();
+            if (filtered.length === 0) {
+                showToast('Tiada data murid untuk dieksport.');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += `"No","ID Murid","Nama Murid","No IC","${state.config.skill1}","${state.config.skill2}","${state.config.skill3}","${state.config.skill4}","Overall TP"\n`;
+
+            filtered.forEach((s, i) => {
+                const overallTP = calculateOverallTP(s);
+                csvContent += `"${i+1}","${s.id}","${s.name}","${s.ic}",${s.skill1},${s.skill2},${s.skill3},${s.skill4},${overallTP}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `PBD_${state.config.subjectCode}_${state.config.className.replace(/\s+/g, '_')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast('Fail CSV berjaya dimuat turun.');
+        }
+
+        // Backup JSON
+        function exportJSONData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+                config: state.config,
+                students: state.students
+            }, null, 2));
+
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `PBD_Backup_${state.config.className.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+
+            showToast('Fail sandaran JSON dimuat turun.');
+        }
+
+        // Restore JSON
+        function importJSONData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.students && Array.isArray(parsed.students)) {
+                        state.students = parsed.students;
+                        if (parsed.config) state.config = { ...defaultConfig, ...parsed.config };
+
+                        saveStudentsToStorage();
+                        saveConfigToStorage();
+                        updateConfigLabels();
+                        renderAllViews();
+                        showToast('Data PBD berjaya dipulihkan!');
+                    } else {
+                        alert('Format JSON tidak sah.');
+                    }
+                } catch (err) {
+                    alert('Ralat membaca fail JSON.');
+                }
+            };
+            if (event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0]);
+            }
+        }
+
+        // Modal Helpers
+        function openModal(id) {
+            if (id === 'settingsModal') openSettingsModal();
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            if (id === 'addStudentModal') resetStudentForm();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-xl flex items-center space-x-2 border border-slate-700 pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i><span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // Initialize on Window Load
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
